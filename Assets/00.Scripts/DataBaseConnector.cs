@@ -13,7 +13,6 @@ public class DataBaseConnector : MonoBehaviour
         if (s_instance == null)
         {
             s_instance = this;
-            PrepareDbURL();
             DontDestroyOnLoad(gameObject);
             return;
         }
@@ -24,17 +23,11 @@ public class DataBaseConnector : MonoBehaviour
     }
     #endregion // SIMPLE_SINGLETON
 
-    const string DB_NAME = "InternalDataBase.db";
 
-    private string _dbURL;
+
     IDbConnection _connection;
     IDbCommand _command;
     IDataReader _reader;
-
-    private void PrepareDbURL()
-    {
-        _dbURL = "URI=file:" + Application.dataPath + "/99.DataBase/" + DB_NAME;
-    }
 
 
 
@@ -114,7 +107,7 @@ public class DataBaseConnector : MonoBehaviour
 
     private void Connect()
     {
-        _connection = new SqliteConnection(_dbURL);
+        _connection = new SqliteConnection(CommandCodex.DB_NAME);
         _connection.Open();
 
         _command = _connection.CreateCommand();
@@ -126,13 +119,15 @@ public class DataBaseConnector : MonoBehaviour
         _command?.Dispose();
         _connection?.Close();
     }
-}
 
-public static class CommandCodex
-{
-    public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel) VALUES ({0} , {1})";
-    public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0";
-    public const string UPDATE_FUEL_REFIL = "UPDATE FuelRefill SET Volume = ";
+    private static class CommandCodex
+    {
+        public static readonly string DB_NAME = "URI=file:" + Application.dataPath + "/99.DataBase/" + "InternalDataBase.db";
 
-    public const string SELECT_ALL_FUEL_REFILL = "SELECT * FROM FuelRefill";
+        public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel) VALUES ({0} , {1})";
+        public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0";
+        public const string UPDATE_FUEL_REFIL = "UPDATE FuelRefill SET Volume = ";
+        public const string SELECT_ALL_FUEL_REFILL = "SELECT * FROM FuelRefill";
+    }
+
 }
