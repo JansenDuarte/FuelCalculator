@@ -87,16 +87,41 @@ public class DataBaseConnector : MonoBehaviour
 
     public void GetAverageConsumption(out float _alcohol, out float _gasoline)
     {
-        //TODO
-        _alcohol = -1f;
+        _alcohol = 0f;
+        _gasoline = 0f;
+        int avgIdx = 0;
 
-        _gasoline = -1;
+        Connect();
+
+        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_ALCOHOL, 5);
+        _reader = _command.ExecuteReader();
+        while (_reader.Read())
+        {
+            _alcohol += _reader.GetFloat(0);
+            avgIdx++;
+        }
+        if (avgIdx != 0)
+        {
+            _alcohol /= avgIdx;
+        }
+        _reader.Close();
+
+        avgIdx = 0;
+
+        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_GASOLINE, 5);
+        _reader = _command.ExecuteReader();
+        while (_reader.Read())
+        {
+            _gasoline += _reader.GetFloat(0);
+            avgIdx++;
+        }
+        if (avgIdx != 0)
+        {
+            _gasoline /= avgIdx;
+        }
+
+        CloseConnection();
     }
-
-
-
-
-
 
 
 
@@ -128,6 +153,8 @@ public class DataBaseConnector : MonoBehaviour
         public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0";
         public const string UPDATE_FUEL_REFIL = "UPDATE FuelRefill SET Volume = ";
         public const string SELECT_ALL_FUEL_REFILL = "SELECT * FROM FuelRefill";
+        public const string SELECT_CONSUMPTION_ALCOHOL = "SELECT Kml FROM FuelConsumption WHERE Fuel = 0 ORDER BY ID DESC LIMIT {0}";
+        public const string SELECT_CONSUMPTION_GASOLINE = "SELECT Kml FROM FuelConsumption WHERE Fuel = 1 ORDER BY ID DESC LIMIT {0}";
     }
 
 }
