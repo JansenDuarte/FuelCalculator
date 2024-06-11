@@ -1,6 +1,5 @@
 using UnityEngine;
 using Mono.Data.Sqlite;
-using System;
 using System.Data;
 using System.Globalization;
 
@@ -30,6 +29,7 @@ public class DataBaseConnector : MonoBehaviour
     private string _dbURL;
     IDbConnection _connection;
     IDbCommand _command;
+    IDataReader _reader;
 
     private void PrepareDbURL()
     {
@@ -45,17 +45,16 @@ public class DataBaseConnector : MonoBehaviour
 
         Connect();
 
-        _command = _connection.CreateCommand();
-        _command.CommandText = "SELECT * FROM FuelRefill";
+        _command.CommandText = CommandCodex.SELECT_ALL_FUEL_REFILL;
 
-        IDataReader reader = _command.ExecuteReader();
+        _reader = _command.ExecuteReader();
 
-        while (reader.Read())
+        while (_reader.Read())
         {
-            value = reader.GetFloat(1);
+            value = _reader.GetFloat(1);
         }
 
-        reader.Close();
+        _reader.Close();
         CloseConnection();
 
         return value;
@@ -73,43 +72,67 @@ public class DataBaseConnector : MonoBehaviour
 
         Connect();
 
-        _command = _connection.CreateCommand();
-        _command.CommandText = string.Format("INSERT INTO FuelConsumption (KmL, Fuel) VALUES ({0} , {1})", KmPerL.ToString(CultureInfo.InvariantCulture), _fuelType.ToString());
-        Debug.Log(_command.CommandText);
+        _command.CommandText = string.Format(CommandCodex.INSERT_CONSUMPTION, KmPerL.ToString(CultureInfo.InvariantCulture), _fuelType.ToString());
         _command.ExecuteNonQuery();
 
-        _command.CommandText = "UPDATE FuelRefill SET Volume = -1.0";
+        _command.CommandText = CommandCodex.RESET_FUEL_REFILL;
         _command.ExecuteNonQuery();
 
         CloseConnection();
-
     }
 
     private void SaveOnlyFuel(float _volume)
     {
         Connect();
 
-        _command = _connection.CreateCommand();
-        _command.CommandText = "UPDATE FuelRefill SET Volume = " + _volume;
-
+        _command.CommandText = CommandCodex.UPDATE_FUEL_REFIL + _volume;
         _command.ExecuteNonQuery();
 
         CloseConnection();
     }
 
+
+    public void GetAverageConsumption(out float _alcohol, out float _gasoline)
+    {
+        //TODO
+        _alcohol = -1f;
+
+        _gasoline = -1;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     private void Connect()
     {
         _connection = new SqliteConnection(_dbURL);
         _connection.Open();
+
+        _command = _connection.CreateCommand();
     }
 
     private void CloseConnection()
     {
-        if (_connection != null)
-        {
-            _connection.Close();
-        }
+        _reader?.Close();
+        _command?.Dispose();
+        _connection?.Close();
     }
+}
 
+public static class CommandCodex
+{
+    public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel) VALUES ({0} , {1})";
+    public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0";
+    public const string UPDATE_FUEL_REFIL = "UPDATE FuelRefill SET Volume = ";
 
+    public const string SELECT_ALL_FUEL_REFILL = "SELECT * FROM FuelRefill";
 }

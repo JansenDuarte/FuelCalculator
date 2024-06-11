@@ -22,10 +22,12 @@ public class Calculator : MonoBehaviour
 
     #endregion // VARIABLES
 
-    private void Awake()
+    private void Start()
     {
+        DataBaseConnector.Instance.GetAverageConsumption(out Alcohol_KmL, out Gasoline_KmL);
         KmL_diferencePercent = ((Gasoline_KmL - Alcohol_KmL) * 100f) / Alcohol_KmL;
     }
+    //TEST
 
     public void UI_CalculatePriceDiferencePercent()
     {
