@@ -78,7 +78,7 @@ public class DataBaseConnector : MonoBehaviour
     {
         Connect();
 
-        _command.CommandText = CommandCodex.UPDATE_FUEL_REFIL + _volume;
+        _command.CommandText = CommandCodex.UPDATE_FUEL_REFIL + _volume.ToString(CultureInfo.InvariantCulture);
         _command.ExecuteNonQuery();
 
         CloseConnection();
@@ -93,7 +93,7 @@ public class DataBaseConnector : MonoBehaviour
 
         Connect();
 
-        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_ALCOHOL, 5);
+        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_ALCOHOL, GameManager.Instance.AvgCount);
         _reader = _command.ExecuteReader();
         while (_reader.Read())
         {
@@ -108,7 +108,7 @@ public class DataBaseConnector : MonoBehaviour
 
         avgIdx = 0;
 
-        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_GASOLINE, 5);
+        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_GASOLINE, GameManager.Instance.AvgCount);
         _reader = _command.ExecuteReader();
         while (_reader.Read())
         {
