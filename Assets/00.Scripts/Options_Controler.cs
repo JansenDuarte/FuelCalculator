@@ -44,6 +44,8 @@ public class Options_Controler : MonoBehaviour
 
     public void UI_OpenOptions()
     {
+        m_avgCount.text = GameManager.Instance.AvgCount.ToString();
+
         for (int i = 0; i < m_canvases.Length; i++)
         {
             if (m_canvases[i].enabled)

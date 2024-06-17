@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion // SIMPLE_SINGLETON
 
-    public int AvgCount = 5;
+    public int AvgCount;
 
     private void Start()
     {
@@ -39,6 +40,13 @@ public class GameManager : MonoBehaviour
         AvgCount = _value;
         PlayerPrefs.SetInt(PrefKeys.AVG_COUNT, AvgCount);
     }
+
+    public void ChangeScene(int _sceneIndex)
+    {
+        SceneManager.LoadScene(_sceneIndex);
+    }
+
+
 
     private static class PrefKeys
     {

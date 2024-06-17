@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Globalization;
 
 public class FuelConsumption : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class FuelConsumption : MonoBehaviour
 
     [SerializeField] private TMP_InputField m_fuelVolume;
     [SerializeField] private TMP_InputField m_kilometer;
-    [SerializeField] private TMP_Dropdown m_fuelType;
+    [SerializeField] private TMP_Text m_info;
 
     #endregion // UI_COMPONENTS
 
@@ -28,13 +29,12 @@ public class FuelConsumption : MonoBehaviour
             return;
         }
 
-        float volume = float.Parse(m_fuelVolume.text);
-        float.TryParse(m_kilometer.text, out float kilometer);
-        DataBaseConnector.Instance.SaveFuelConsumption(volume, kilometer, m_fuelType.value);
+        float volume = float.Parse(m_fuelVolume.text, CultureInfo.InvariantCulture);
+        float.TryParse(m_kilometer.text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float kilometer);
 
         if (kilometer > 0f)
         {
-            //TODO mostra a caceta do consumo médio
+            m_info.text = "Média de " + kilometer / volume + "Km/l";
         }
     }
 }

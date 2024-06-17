@@ -2,6 +2,10 @@ using UnityEngine;
 using Mono.Data.Sqlite;
 using System.Data;
 using System.Globalization;
+using UnityEngine.Networking;
+using System.Collections;
+using System.IO;
+using TMPro;
 
 public class DataBaseConnector : MonoBehaviour
 {
@@ -14,6 +18,7 @@ public class DataBaseConnector : MonoBehaviour
         {
             s_instance = this;
             DontDestroyOnLoad(gameObject);
+            StartCoroutine(InitialSetup());
             return;
         }
         else
@@ -24,12 +29,53 @@ public class DataBaseConnector : MonoBehaviour
     #endregion // SIMPLE_SINGLETON
 
 
+    [SerializeField] private TMP_Text m_log;
 
     IDbConnection _connection;
     IDbCommand _command;
     IDataReader _reader;
 
 
+    private IEnumerator InitialSetup()
+    {
+        m_log.text += "\nVerifying DataBase presence...";
+        yield return new WaitForSeconds(1f);
+
+        if (!File.Exists(Application.persistentDataPath + "/InternalDataBase.db"))
+        {
+            m_log.text += "\nDataBase not present! Preparing to write it to " + Application.persistentDataPath;
+            yield return new WaitForSeconds(1f);
+
+            double opInitialTime = Time.realtimeSinceStartupAsDouble;
+            double maxLoadTimeS = 600;
+
+            m_log.text += "\nPreparing to download DataBase...";
+            yield return new WaitForSeconds(1f);
+            UnityWebRequest loadDb = UnityWebRequest.Get(Application.streamingAssetsPath + "/InternalDataBase.db");
+            loadDb.SendWebRequest();
+
+            while (!loadDb.isDone)
+            {
+                if (Time.realtimeSinceStartupAsDouble - opInitialTime >= maxLoadTimeS)
+                {
+                    m_log.text += "\nDataBase file could not be loaded! Terminating application!";
+                    yield return new WaitForSeconds(1f);
+                    Application.Quit();
+                    break;
+                }
+                yield return new WaitForEndOfFrame();
+            }
+
+            m_log.text += "\nWriting Database to file location: " + Application.persistentDataPath + "/InternalDataBase.db";
+            yield return new WaitForSeconds(1f);
+            File.WriteAllBytes(Application.persistentDataPath + "/InternalDataBase.db", loadDb.downloadHandler.data);
+        }
+
+        m_log.text += "\nDataBase loaded correctly! Resuming application...";
+        yield return new WaitForSeconds(1f);
+        GameManager.Instance.ChangeScene(SceneCodex.MAIN);
+        yield break;
+    }
 
 
     public float GetFuelRefill()
@@ -53,12 +99,11 @@ public class DataBaseConnector : MonoBehaviour
         return value;
     }
 
-    public void SaveFuelConsumption(float _volume, float _kilometer, int _fuelType)
+    public int SaveFuelConsumption(float _volume, float _kilometer, int _fuelType)
     {
         if (_kilometer <= 0f)
         {
-            SaveOnlyFuel(_volume);
-            return;
+            return SaveOnlyFuel(_volume);
         }
 
         float KmPerL = _kilometer / _volume;
@@ -69,19 +114,23 @@ public class DataBaseConnector : MonoBehaviour
         _command.ExecuteNonQuery();
 
         _command.CommandText = CommandCodex.RESET_FUEL_REFILL;
-        _command.ExecuteNonQuery();
+        int result = _command.ExecuteNonQuery();
 
         CloseConnection();
+
+        return result;
     }
 
-    private void SaveOnlyFuel(float _volume)
+    private int SaveOnlyFuel(float _volume)
     {
         Connect();
 
         _command.CommandText = CommandCodex.UPDATE_FUEL_REFIL + _volume.ToString(CultureInfo.InvariantCulture);
-        _command.ExecuteNonQuery();
+        int result = _command.ExecuteNonQuery();
 
         CloseConnection();
+
+        return result;
     }
 
 
@@ -132,7 +181,7 @@ public class DataBaseConnector : MonoBehaviour
 
     private void Connect()
     {
-        _connection = new SqliteConnection(CommandCodex.DB_NAME);
+        _connection = new SqliteConnection("URI=file:" + CommandCodex.DB_PATH);
         _connection.Open();
 
         _command = _connection.CreateCommand();
@@ -147,7 +196,11 @@ public class DataBaseConnector : MonoBehaviour
 
     private static class CommandCodex
     {
-        public static readonly string DB_NAME = "URI=file:" + Application.dataPath + "/99.DataBase/" + "InternalDataBase.db";
+#if UNITY_EDITOR
+        public static readonly string DB_PATH = Application.dataPath + "/StreamingAssets/" + "InternalDataBase.db";
+#else 
+        public static readonly string DB_PATH = Application.persistentDataPath + "/InternalDataBase.db";
+#endif
 
         public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel) VALUES ({0} , {1})";
         public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0";
@@ -156,5 +209,4 @@ public class DataBaseConnector : MonoBehaviour
         public const string SELECT_CONSUMPTION_ALCOHOL = "SELECT Kml FROM FuelConsumption WHERE Fuel = 0 ORDER BY ID DESC LIMIT {0}";
         public const string SELECT_CONSUMPTION_GASOLINE = "SELECT Kml FROM FuelConsumption WHERE Fuel = 1 ORDER BY ID DESC LIMIT {0}";
     }
-
 }
