@@ -38,11 +38,11 @@ public class DataBaseConnector : MonoBehaviour
 
     private IEnumerator InitialSetup()
     {
-        m_log.text += "\nVerifying DataBase presence...";
-        yield return new WaitForSeconds(1f);
-
         if (!File.Exists(Application.persistentDataPath + "/InternalDataBase.db"))
         {
+            m_log.text += "\nVerifying DataBase presence...";
+            yield return new WaitForSeconds(1f);
+
             m_log.text += "\nDataBase not present! Preparing to write it to " + Application.persistentDataPath;
             yield return new WaitForSeconds(1f);
 
