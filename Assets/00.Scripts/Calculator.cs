@@ -13,13 +13,10 @@ public class Calculator : MonoBehaviour
 
     #region VARIABLES
 
-    //DEBUG
-    [Header("DEBUG")]
-    [SerializeField] private float m_priceDiferencePercent;
-    [SerializeField] private float m_alcoholConsumptionPercent;
-    [SerializeField] private float m_gasolineConsumptionPercent;
-    [SerializeField] private float m_consumptionDiferencePercent;
-    //DEBUG
+    private float m_priceDiferencePercent;
+    private float m_alcoholConsumptionPercent;
+    private float m_gasolineConsumptionPercent;
+    private float m_consumptionDiferencePercent;
 
     #endregion // VARIABLES
 
@@ -28,21 +25,16 @@ public class Calculator : MonoBehaviour
         CalculateAvg();
     }
 
-    private void CalculateAvg()
-    {
-        DataBaseConnector.Instance.GetAverageConsumption(out m_alcoholConsumptionPercent, out m_gasolineConsumptionPercent);
-        m_consumptionDiferencePercent = (m_alcoholConsumptionPercent != 0f) ? ((m_gasolineConsumptionPercent - m_alcoholConsumptionPercent) * 100f) / m_alcoholConsumptionPercent : 0f;
-    }
+
 
     public void UI_CalculatePriceDiferencePercent()
     {
+        CalculateAvg();
+
         float gasoline = float.Parse(m_gasolinePrice.text);
         float alcohol = float.Parse(m_alcoholPrice.text);
-        m_priceDiferencePercent = ((gasoline - alcohol) * 100f) / alcohol;
-        string result = string.Format("<b>{0}%</b>", m_priceDiferencePercent);
-        string consumption = (m_consumptionDiferencePercent != 0f) ? string.Format("\n\nDiferença de consumo baseado em resultados anteriores <b>{0}%</b>", m_consumptionDiferencePercent) : "";
 
-        m_priceDiferenceResult.text = string.Format("Gasolina está {0} mais caro que o Álcool.{1}", result, consumption);
+        m_priceDiferencePercent = ((gasoline - alcohol) * 100f) / alcohol;
 
         AdviseFuelToUse();
     }
@@ -54,6 +46,11 @@ public class Calculator : MonoBehaviour
             return;
         }
 
+        string result = "<b>" + m_priceDiferencePercent + "%</b>";
+        string consumption = (m_consumptionDiferencePercent != 0f) ? string.Format("\n\nDiferença de consumo baseado em resultados anteriores <b>{0}%</b>", m_consumptionDiferencePercent) : "";
+
+        m_priceDiferenceResult.text = string.Format("Gasolina está {0} mais caro que o Álcool.{1}", result, consumption);
+
         if (m_priceDiferencePercent < m_consumptionDiferencePercent)
         {
             m_priceDiferenceResult.text += "\n\nGasolina é aconcelhado";
@@ -63,4 +60,20 @@ public class Calculator : MonoBehaviour
             m_priceDiferenceResult.text += "\n\nÁlcool é aconcelhado";
         }
     }
+
+    private void CalculateAvg()
+    {
+        DataBaseConnector.Instance.GetAverageConsumption(out m_alcoholConsumptionPercent, out m_gasolineConsumptionPercent);
+        if (m_alcoholConsumptionPercent != 0f && m_gasolineConsumptionPercent != 0f)
+        {
+            m_consumptionDiferencePercent = ((m_gasolineConsumptionPercent - m_alcoholConsumptionPercent) * 100f) / m_alcoholConsumptionPercent;
+        }
+        else
+        {
+            //Not enough info, can't make an acessment
+            m_consumptionDiferencePercent = 0f;
+        }
+    }
+
+    //FIXME: the UI message needs to be separated, it'll be easier to debug and maintain
 }
