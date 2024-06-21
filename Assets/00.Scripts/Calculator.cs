@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class Calculator : MonoBehaviour
 {
@@ -36,29 +37,38 @@ public class Calculator : MonoBehaviour
 
         m_priceDiferencePercent = ((gasoline - alcohol) * 100f) / alcohol;
 
-        AdviseFuelToUse();
+        StartCoroutine(AdviseFuelToUse());
     }
 
-    private void AdviseFuelToUse()
+    private IEnumerator AdviseFuelToUse()
     {
         if (m_consumptionDiferencePercent == 0f)
         {
-            return;
+            yield break;
         }
 
-        string result = "<b>" + m_priceDiferencePercent + "%</b>";
-        string consumption = (m_consumptionDiferencePercent != 0f) ? string.Format("\n\nDiferença de consumo baseado em resultados anteriores <b>{0}%</b>", m_consumptionDiferencePercent) : "";
+        string formatedToUI = "Gasolina está <b>" + m_priceDiferencePercent + "%</b> mais caro que o Álcool.";
 
-        m_priceDiferenceResult.text = string.Format("Gasolina está {0} mais caro que o Álcool.{1}", result, consumption);
+
+        if (m_alcoholConsumptionPercent != 0f)
+        {
+            formatedToUI += "\n\nDiferença de consumo baseado em resultados anteriores <b>" + m_consumptionDiferencePercent + "%</b>";
+        }
+
 
         if (m_priceDiferencePercent < m_consumptionDiferencePercent)
         {
-            m_priceDiferenceResult.text += "\n\nGasolina é aconcelhado";
+            formatedToUI += "\n\nGasolina é aconcelhado";
         }
         else
         {
-            m_priceDiferenceResult.text += "\n\nÁlcool é aconcelhado";
+            formatedToUI += "\n\nÁlcool é aconcelhado";
         }
+
+        m_priceDiferenceResult.text = formatedToUI;
+        yield return new WaitForSeconds(5f);
+        m_priceDiferenceResult.text = string.Empty;
+        yield break;
     }
 
     private void CalculateAvg()
