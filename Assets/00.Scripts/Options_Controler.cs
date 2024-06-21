@@ -24,6 +24,7 @@ public class Options_Controler : MonoBehaviour
         //FIXME: this is shit!!
         m_canvases[0].enabled = true;
         m_canvases[1].enabled = false;
+        m_canvases[2].enabled = false;
     }
 
     public void UI_OpenConsumption()
@@ -31,6 +32,14 @@ public class Options_Controler : MonoBehaviour
         //FIXME: this is shit!!
         m_canvases[0].enabled = false;
         m_canvases[1].enabled = true;
+        m_canvases[2].enabled = false;
+    }
+
+    public void UI_OpenHistory()
+    {
+        m_canvases[0].enabled = false;
+        m_canvases[1].enabled = false;
+        m_canvases[2].enabled = true;
     }
 
 

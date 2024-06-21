@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.IO;
 using TMPro;
+using System.Collections.Generic;
 
 public class DataBaseConnector : MonoBehaviour
 {
@@ -173,6 +174,33 @@ public class DataBaseConnector : MonoBehaviour
     }
 
 
+    public List<Consumption> GetAllConsumptions()
+    {
+        List<Consumption> ret = new List<Consumption>();
+
+        Connect();
+
+        _command.CommandText = CommandCodex.SELECT_ALL_CONSUMPTION;
+        _reader = _command.ExecuteReader();
+
+        while (_reader.Read())
+        {
+            Consumption con = new Consumption
+            {
+                Id = _reader.GetInt32(0),
+                KmL = _reader.GetFloat(1),
+                Fuel = _reader.GetInt32(2),
+                Date = _reader.GetString(3)
+            };
+            ret.Add(con);
+        }
+
+        CloseConnection();
+
+        return ret;
+    }
+
+
 
 
 
@@ -202,11 +230,12 @@ public class DataBaseConnector : MonoBehaviour
         public static readonly string DB_PATH = Application.persistentDataPath + "/InternalDataBase.db";
 #endif
 
-        public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel) VALUES ({0} , {1})";
+        public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel, Date) VALUES ({0} , {1}, date())";
         public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0";
         public const string UPDATE_FUEL_REFIL = "UPDATE FuelRefill SET Volume = ";
         public const string SELECT_ALL_FUEL_REFILL = "SELECT * FROM FuelRefill";
         public const string SELECT_CONSUMPTION_ALCOHOL = "SELECT Kml FROM FuelConsumption WHERE Fuel = 0 ORDER BY ID DESC LIMIT {0}";
         public const string SELECT_CONSUMPTION_GASOLINE = "SELECT Kml FROM FuelConsumption WHERE Fuel = 1 ORDER BY ID DESC LIMIT {0}";
+        public const string SELECT_ALL_CONSUMPTION = "SELECT * FROM FuelConsumption ORDER BY ID DESC";
     }
 }
