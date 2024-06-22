@@ -84,6 +84,4 @@ public class Calculator : MonoBehaviour
             m_consumptionDiferencePercent = 0f;
         }
     }
-
-    //FIXME: the UI message needs to be separated, it'll be easier to debug and maintain
 }

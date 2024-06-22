@@ -174,9 +174,9 @@ public class DataBaseConnector : MonoBehaviour
     }
 
 
-    public List<Consumption> GetAllConsumptions()
+    public void GetAllConsumptions(out List<Consumption> _con)
     {
-        List<Consumption> ret = new List<Consumption>();
+        _con = new List<Consumption>();
 
         Connect();
 
@@ -185,19 +185,18 @@ public class DataBaseConnector : MonoBehaviour
 
         while (_reader.Read())
         {
-            Consumption con = new Consumption
+            Consumption con = new()
             {
                 Id = _reader.GetInt32(0),
                 KmL = _reader.GetFloat(1),
                 Fuel = _reader.GetInt32(2),
                 Date = _reader.GetString(3)
             };
-            ret.Add(con);
+            _con.Add(con);
         }
 
         CloseConnection();
 
-        return ret;
     }
 
 

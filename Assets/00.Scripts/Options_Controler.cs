@@ -17,29 +17,23 @@ public class Options_Controler : MonoBehaviour
     private void Start()
     {
         m_avgCount.text = GameManager.Instance.AvgCount.ToString();
+
+        //Find the open canvas in the scene and place it as the open canvas
+        for (int i = 0; i < m_canvases.Length; i++)
+        {
+            if (m_canvases[i].enabled)
+            {
+                m_lastOpenCanvasIdx = i;
+            }
+        }
     }
 
-    public void UI_OpenCalculator()
+    public void UI_ChangeVisibleCanvas(int _canvasIdx)
     {
-        //FIXME: this is shit!!
-        m_canvases[0].enabled = true;
-        m_canvases[1].enabled = false;
-        m_canvases[2].enabled = false;
-    }
+        m_canvases[m_lastOpenCanvasIdx].enabled = false;
+        m_canvases[_canvasIdx].enabled = true;
 
-    public void UI_OpenConsumption()
-    {
-        //FIXME: this is shit!!
-        m_canvases[0].enabled = false;
-        m_canvases[1].enabled = true;
-        m_canvases[2].enabled = false;
-    }
-
-    public void UI_OpenHistory()
-    {
-        m_canvases[0].enabled = false;
-        m_canvases[1].enabled = false;
-        m_canvases[2].enabled = true;
+        m_lastOpenCanvasIdx = _canvasIdx;
     }
 
 
@@ -55,14 +49,7 @@ public class Options_Controler : MonoBehaviour
     {
         m_avgCount.text = GameManager.Instance.AvgCount.ToString();
 
-        for (int i = 0; i < m_canvases.Length; i++)
-        {
-            if (m_canvases[i].enabled)
-            {
-                m_lastOpenCanvasIdx = i;
-                m_canvases[i].enabled = false;
-            }
-        }
+        m_canvases[m_lastOpenCanvasIdx].enabled = false;
 
         m_mainPanel.SetActive(true);
         m_sidePanel.SetActive(false);
