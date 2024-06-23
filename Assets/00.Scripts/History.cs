@@ -10,6 +10,7 @@ public class History : MonoBehaviour
     [SerializeField] private GameObject m_contentPivot;
     [SerializeField] private GameObject m_itemPrefab;
     [SerializeField] private GameObject m_emptyListMsg;
+    [SerializeField] private GameObject m_listFilter;
 
     #endregion // UI_COMPONENTS
 
@@ -25,10 +26,12 @@ public class History : MonoBehaviour
 
         if (consumptions.Count == 0)
         {
+            m_listFilter.SetActive(false);
             return;
         }
 
         m_emptyListMsg.SetActive(false);
+        m_listFilter.SetActive(true);
 
         foreach (Consumption item in consumptions)
         {
