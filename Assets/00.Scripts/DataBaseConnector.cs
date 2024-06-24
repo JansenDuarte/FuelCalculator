@@ -111,6 +111,18 @@ public class DataBaseConnector : MonoBehaviour
         CloseConnection();
     }
 
+    public int SaveFuelConsumption(float _kml, int _fuelType)
+    {
+        Connect();
+
+        _command.CommandText = string.Format(CommandCodex.INSERT_CONSUMPTION, _kml.ToString(CultureInfo.InvariantCulture), _fuelType.ToString());
+        int result = _command.ExecuteNonQuery();
+
+        CloseConnection();
+
+        return result;
+    }
+
     public int SaveFuelConsumption(float _volume, float _kilometer, int _fuelType)
     {
         if (_kilometer <= 0f)
