@@ -22,15 +22,19 @@ public class GameManager : MonoBehaviour
     #endregion // SIMPLE_SINGLETON
 
     public int AvgCount;
+    public bool FirstExecution = true;
 
     private void Start()
     {
-        if (PlayerPrefs.HasKey(PrefKeys.AVG_COUNT))
+        if (PlayerPrefs.HasKey(PrefKeys.FIRST_EXECUTION))
         {
+            FirstExecution = false;
             AvgCount = PlayerPrefs.GetInt(PrefKeys.AVG_COUNT);
         }
         else
         {
+            // INFO: FIRST_EXECUTION has a magic number, but it only needs to be present
+            PlayerPrefs.SetInt(PrefKeys.FIRST_EXECUTION, 0);
             PlayerPrefs.SetInt(PrefKeys.AVG_COUNT, AvgCount);
         }
     }
@@ -46,10 +50,23 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(_sceneIndex);
     }
 
+    public void ChangeScene()
+    {
+        if (FirstExecution)
+        {
+            SceneManager.LoadScene(SceneCodex.INITIAL_SETUP);
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneCodex.MAIN);
+        }
+    }
+
 
 
     private static class PrefKeys
     {
+        public const string FIRST_EXECUTION = "FirstExecution";
         public const string AVG_COUNT = "AverageCount";
     }
 }

@@ -42,7 +42,7 @@ public class Calculator : MonoBehaviour
 
     private IEnumerator AdviseFuelToUse()
     {
-        if (m_consumptionDiferencePercent == 0f)
+        if (m_priceDiferencePercent == 0f)
         {
             yield break;
         }

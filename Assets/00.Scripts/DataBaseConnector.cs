@@ -1,12 +1,12 @@
-using UnityEngine;
-using Mono.Data.Sqlite;
 using System.Data;
 using System.Globalization;
-using UnityEngine.Networking;
 using System.Collections;
-using System.IO;
-using TMPro;
 using System.Collections.Generic;
+using System.IO;
+using Mono.Data.Sqlite;
+using UnityEngine;
+using UnityEngine.Networking;
+using TMPro;
 
 public class DataBaseConnector : MonoBehaviour
 {
@@ -74,7 +74,7 @@ public class DataBaseConnector : MonoBehaviour
 
         m_log.text += "\nDataBase loaded correctly! Resuming application...";
         yield return new WaitForSeconds(1f);
-        GameManager.Instance.ChangeScene(SceneCodex.MAIN);
+        GameManager.Instance.ChangeScene();
         yield break;
     }
 
@@ -98,6 +98,17 @@ public class DataBaseConnector : MonoBehaviour
         CloseConnection();
 
         return value;
+    }
+
+    public void SaveKnownConsumptions(float _alcoholKmL, float _gasolineKmL)
+    {
+        Connect();
+
+        _command.CommandText = string.Format(CommandCodex.INSERT_CONSUMPTION_WITHOUT_DATE, _alcoholKmL, 0);
+        _command.CommandText += string.Format(CommandCodex.INSERT_CONSUMPTION_WITHOUT_DATE, _gasolineKmL, 1);
+        _command.ExecuteNonQuery();
+
+        CloseConnection();
     }
 
     public int SaveFuelConsumption(float _volume, float _kilometer, int _fuelType)
@@ -229,8 +240,12 @@ public class DataBaseConnector : MonoBehaviour
         public static readonly string DB_PATH = Application.persistentDataPath + "/InternalDataBase.db";
 #endif
 
-        public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel, Date) VALUES ({0} , {1}, date())";
-        public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0";
+        public const string INSERT_CONSUMPTION = "INSERT INTO FuelConsumption (KmL, Fuel, Date) VALUES ({0} , {1}, date());";
+        /// <summary>
+        /// Insert Kilometer per litre and fuel type. Inserts 'Date' as a NULL string
+        /// </summary>
+        public const string INSERT_CONSUMPTION_WITHOUT_DATE = "INSERT INTO FuelConsumption (KmL, Fuel, Date) VALUES ({0} , {1}, \"NULL\");";
+        public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0;";
         public const string UPDATE_FUEL_REFIL = "UPDATE FuelRefill SET Volume = ";
         public const string SELECT_ALL_FUEL_REFILL = "SELECT * FROM FuelRefill";
         public const string SELECT_CONSUMPTION_ALCOHOL = "SELECT Kml FROM FuelConsumption WHERE Fuel = 0 ORDER BY ID DESC LIMIT {0}";

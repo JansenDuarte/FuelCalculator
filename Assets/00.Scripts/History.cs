@@ -39,7 +39,7 @@ public class History : MonoBehaviour
 
             hi.Kml.text = item.KmL.ToString();
             hi.FuelType.text = (item.Fuel == 0) ? "Álcool" : "Gasolina";
-            hi.Date.text = item.Date;
+            hi.Date.text = (item.Date == "NULL") ? "N/A" : item.Date;
         }
     }
 }
