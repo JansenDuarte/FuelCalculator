@@ -120,6 +120,8 @@ public class DataBaseConnector : MonoBehaviour
 
         CloseConnection();
 
+        InvokeConsumptionsUpdated();
+
         return result;
     }
 
@@ -141,6 +143,8 @@ public class DataBaseConnector : MonoBehaviour
         int result = _command.ExecuteNonQuery();
 
         CloseConnection();
+
+        InvokeConsumptionsUpdated();
 
         return result;
     }
@@ -220,6 +224,12 @@ public class DataBaseConnector : MonoBehaviour
 
         CloseConnection();
 
+    }
+
+
+    private void InvokeConsumptionsUpdated()
+    {
+        GameManager.Instance.ConsumptionsUpdated.Invoke();
     }
 
 

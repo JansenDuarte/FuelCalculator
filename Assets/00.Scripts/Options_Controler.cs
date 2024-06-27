@@ -3,14 +3,14 @@ using TMPro;
 
 public class Options_Controler : MonoBehaviour
 {
-    [Header("Options")]
+    [Space, Header("Options"), Space]
     [SerializeField] private TMP_InputField m_avgCount;
 
-    [Header("Internal Panels")]
+    [Space, Header("Internal Panels"), Space]
     [SerializeField] private GameObject m_mainPanel;
     [SerializeField] private GameObject m_sidePanel;
 
-    [Header("Canvases")]
+    [Space, Header("Canvases"), Space]
     [SerializeField] private Canvas[] m_canvases;
     [SerializeField] private int m_lastOpenCanvasIdx;
 

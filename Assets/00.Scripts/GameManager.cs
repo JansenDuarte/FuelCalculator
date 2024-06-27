@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -23,6 +24,8 @@ public class GameManager : MonoBehaviour
 
     public int AvgCount;
     public bool FirstExecution = true;
+
+    public UnityEvent ConsumptionsUpdated;
 
     private void Start()
     {

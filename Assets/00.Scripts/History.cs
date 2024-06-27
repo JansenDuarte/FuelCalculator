@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class History : MonoBehaviour
 {
@@ -14,13 +13,17 @@ public class History : MonoBehaviour
 
     #endregion // UI_COMPONENTS
 
+    private List<HistoryItem> historyItems = new List<HistoryItem>();
+
 
     private void Start()
     {
+        GameManager.Instance.ConsumptionsUpdated.AddListener(PopulateHistoryList);
+
         PopulateHistoryList();
     }
 
-    private void PopulateHistoryList()
+    public void PopulateHistoryList()
     {
         DataBaseConnector.Instance.GetAllConsumptions(out List<Consumption> consumptions);
 
@@ -30,16 +33,28 @@ public class History : MonoBehaviour
             return;
         }
 
+
         m_emptyListMsg.SetActive(false);
         m_listFilter.SetActive(true);
 
-        foreach (Consumption item in consumptions)
+        int diff = consumptions.Count - historyItems.Count;
+        while (diff > 0)
         {
             HistoryItem hi = Instantiate(m_itemPrefab, m_contentPivot.transform).GetComponent<HistoryItem>();
+            historyItems.Add(hi);
+            diff--;
+        }
 
-            hi.Kml.text = item.KmL.ToString();
-            hi.FuelType.text = (item.Fuel == 0) ? "Álcool" : "Gasolina";
-            hi.Date.text = (item.Date == "NULL") ? "N/A" : item.Date;
+        ModifyItemsTexts(ref consumptions);
+    }
+
+    private void ModifyItemsTexts(ref List<Consumption> _info)
+    {
+        for (int i = 0; i < historyItems.Count; i++)
+        {
+            historyItems[i].Kml.text = _info[i].KmL.ToString();
+            historyItems[i].FuelType.text = (_info[i].Fuel == 0) ? "Álcool" : "Gasolina";
+            historyItems[i].Date.text = (_info[i].Date == "NULL") ? "N/A" : _info[i].Date;
         }
     }
 }
