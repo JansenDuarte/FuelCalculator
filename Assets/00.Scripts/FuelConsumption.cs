@@ -29,7 +29,7 @@ public class FuelConsumption : MonoBehaviour
 
         if (lastRefill > 0f)
         {
-            m_fuelVolume.text = lastRefill.ToString();
+            m_fuelVolume.text = lastRefill.ToString(CultureInfo.InvariantCulture);
         }
     }
 
@@ -40,7 +40,7 @@ public class FuelConsumption : MonoBehaviour
             return;
         }
 
-        float volume = float.Parse(m_fuelVolume.text, CultureInfo.InvariantCulture);
+        float.TryParse(m_fuelVolume.text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float volume);
         float.TryParse(m_kilometer.text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float kilometer);
 
         DataBaseConnector.Instance.SaveFuelConsumption(volume, kilometer, m_mainFuelType.value);
