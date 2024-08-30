@@ -32,6 +32,12 @@ public class Calculator : MonoBehaviour
     {
         CalculateAvg();
 
+        if (m_gasolinePrice.text.Length == 0 || m_alcoholPrice.text.Length == 0)
+        {
+            StartCoroutine(ShowInfoText(5f, "Não é possível calcular com um dos campos vazio!"));
+            return;
+        }
+
         float gasoline = float.Parse(m_gasolinePrice.text);
         float alcohol = float.Parse(m_alcoholPrice.text);
 
@@ -83,5 +89,15 @@ public class Calculator : MonoBehaviour
             //Not enough info, can't make an acessment
             m_consumptionDiferencePercent = 0f;
         }
+    }
+
+
+    private IEnumerator ShowInfoText(float _timer, string _msg = "")
+    {
+        m_priceDiferenceResult.text = _msg;
+        yield return new WaitForSeconds(_timer);
+
+        m_priceDiferenceResult.text = string.Empty;
+        yield break;
     }
 }

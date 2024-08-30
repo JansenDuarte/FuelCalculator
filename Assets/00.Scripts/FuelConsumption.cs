@@ -29,40 +29,49 @@ public class FuelConsumption : MonoBehaviour
 
         if (lastRefill > 0f)
         {
-            m_fuelVolume.text = lastRefill.ToString(CultureInfo.InvariantCulture);
+            m_fuelVolume.text = lastRefill.ToString();
         }
     }
 
     public void UI_SaveFuelRefill()
     {
-        if (m_fuelVolume.text == string.Empty)
+        if (m_fuelVolume.text.Length == 0)
         {
+            StartCoroutine(ShowInfoText(5f, "Alimente as caixas acima com informações antes de tentar calcular ou salvar o reabastecimento"));
             return;
         }
 
-        float.TryParse(m_fuelVolume.text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float volume);
-        float.TryParse(m_kilometer.text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float kilometer);
+        float volume = float.Parse(m_fuelVolume.text);
+        float kilometer = (m_kilometer.text.Length == 0) ? 0f : float.Parse(m_kilometer.text);
 
-        DataBaseConnector.Instance.SaveFuelConsumption(volume, kilometer, m_mainFuelType.value);
+        float KmPerL = 0f;
+        if (volume > 0f)
+        {
+            KmPerL = kilometer / volume;
+        }
+
 
         if (kilometer > 0f)
         {
-            StartCoroutine(ShowInfoText(5f, "Média de " + kilometer / volume + "Km/l"));
+            DataBaseConnector.Instance.SaveFuelConsumption(KmPerL, m_mainFuelType.value);
+            StartCoroutine(ShowInfoText(5f, "Média de " + KmPerL + "Km/l"));
         }
         else
         {
+            DataBaseConnector.Instance.SaveRefill(volume);
             StartCoroutine(ShowInfoText(2f, "Reabastecimento salvo!"));
         }
     }
 
     public void UI_AddKnownConsumption()
     {
-        if (m_knownConsumption.text == string.Empty)
+        if (m_knownConsumption.text.Length == 0)
         {
+            StartCoroutine(ShowInfoText(5f, "Não é possível adicionar um consumo vazio"));
             return;
         }
 
-        float kml = float.Parse(m_knownConsumption.text, CultureInfo.InvariantCulture);
+        float kml = float.Parse(m_knownConsumption.text);
 
         DataBaseConnector.Instance.SaveFuelConsumption(kml, m_addFuelType.value);
     }

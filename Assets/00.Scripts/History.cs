@@ -52,9 +52,22 @@ public class History : MonoBehaviour
     {
         for (int i = 0; i < historyItems.Count; i++)
         {
-            historyItems[i].Kml.text = _info[i].KmL.ToString();
+            historyItems[i].Kml.text = _info[i].KmL.ToString("N");
             historyItems[i].FuelType.text = (_info[i].Fuel == 0) ? "Álcool" : "Gasolina";
-            historyItems[i].Date.text = (_info[i].Date == "NULL") ? "N/A" : _info[i].Date;
+            historyItems[i].Date.text = FormatDate(_info[i].Date);
+        }
+    }
+
+    private string FormatDate(string _date)
+    {
+        if (_date != "NULL")
+        {
+            string[] values = _date.Split('-');
+            return values[2] + "/" + values[1] + "/" + values[0];
+        }
+        else
+        {
+            return "N/A";
         }
     }
 }

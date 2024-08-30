@@ -72,8 +72,36 @@ public class DataBaseConnector : MonoBehaviour
             File.WriteAllBytes(Application.persistentDataPath + "/InternalDataBase.db", loadDb.downloadHandler.data);
         }
 
+        //StartCoroutine(FixDb());
         m_log.text += "\nDataBase loaded correctly! Resuming application...";
         yield return new WaitForSeconds(1f);
+        GameManager.Instance.ChangeScene();
+        yield break;
+    }
+
+
+    //HACK  Remove this after correcting the db on my phone
+    private IEnumerator FixDb()
+    {
+        GetAllConsumptions(out List<Consumption> data);
+
+        Connect();
+
+        int i = 0;
+        foreach (Consumption c in data)
+        {
+            if (c.KmL > 1f)
+                continue;
+
+            float correct = c.KmL * 100f;
+            _command.CommandText = "update FuelConsumption set Kml = " + correct.ToString(CultureInfo.InvariantCulture) + " where ID = " + c.Id;
+            _command.ExecuteNonQuery();
+            i++;
+        }
+
+        m_log.text += "\nCorrection finished! " + i + " values corrected";
+        CloseConnection();
+        yield return new WaitForSeconds(5f);
         GameManager.Instance.ChangeScene();
         yield break;
     }
@@ -125,31 +153,8 @@ public class DataBaseConnector : MonoBehaviour
         return result;
     }
 
-    public int SaveFuelConsumption(float _volume, float _kilometer, int _fuelType)
-    {
-        if (_kilometer <= 0f)
-        {
-            return SaveOnlyFuel(_volume);
-        }
 
-        float KmPerL = _kilometer / _volume;
-
-        Connect();
-
-        _command.CommandText = string.Format(CommandCodex.INSERT_CONSUMPTION, KmPerL.ToString(CultureInfo.InvariantCulture), _fuelType.ToString());
-        _command.ExecuteNonQuery();
-
-        _command.CommandText = CommandCodex.RESET_FUEL_REFILL;
-        int result = _command.ExecuteNonQuery();
-
-        CloseConnection();
-
-        InvokeConsumptionsUpdated();
-
-        return result;
-    }
-
-    private int SaveOnlyFuel(float _volume)
+    public int SaveRefill(float _volume)
     {
         Connect();
 
