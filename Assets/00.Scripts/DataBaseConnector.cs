@@ -171,36 +171,31 @@ public class DataBaseConnector : MonoBehaviour
     {
         _alcohol = 0f;
         _gasoline = 0f;
-        int avgIdx = 0;
 
         Connect();
 
-        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_ALCOHOL, GameManager.Instance.AvgCount);
+        _command.CommandText = string.Format(CommandCodex.SELECT_AVG_CONSUMPTION_ALCOHOL, GameManager.Instance.AvgCount);
         _reader = _command.ExecuteReader();
         while (_reader.Read())
         {
-            _alcohol += _reader.GetFloat(0);
-            avgIdx++;
-        }
-        if (avgIdx != 0)
-        {
-            _alcohol /= avgIdx;
+            if (_reader.GetFieldType(0) != typeof(float))
+                _alcohol = 0f;
+            else
+                _alcohol = _reader.GetFloat(0);
         }
         _reader.Close();
 
-        avgIdx = 0;
-
-        _command.CommandText = string.Format(CommandCodex.SELECT_CONSUMPTION_GASOLINE, GameManager.Instance.AvgCount);
+        _command.CommandText = string.Format(CommandCodex.SELECT_AVG_CONSUMPTION_GASOLINE, GameManager.Instance.AvgCount);
         _reader = _command.ExecuteReader();
         while (_reader.Read())
         {
-            _gasoline += _reader.GetFloat(0);
-            avgIdx++;
+            if (_reader.GetFieldType(0) != typeof(float))
+                _gasoline = 0f;
+            else
+                _gasoline = _reader.GetFloat(0);
         }
-        if (avgIdx != 0)
-        {
-            _gasoline /= avgIdx;
-        }
+        _reader.Close();
+
 
         CloseConnection();
     }
@@ -271,12 +266,12 @@ public class DataBaseConnector : MonoBehaviour
         /// <summary>
         /// Insert Kilometer per litre and fuel type. Inserts 'Date' as a NULL string
         /// </summary>
-        public const string INSERT_CONSUMPTION_WITHOUT_DATE = "INSERT INTO FuelConsumption (KmL, Fuel, Date) VALUES ({0} , {1}, \"NULL\");";
+        public const string INSERT_CONSUMPTION_WITHOUT_DATE = "INSERT INTO FuelConsumption (KmL, Fuel, Date) VALUES ({0} , {1}, 'NULL');";
         public const string RESET_FUEL_REFILL = "UPDATE FuelRefill SET Volume = -1.0;";
         public const string UPDATE_FUEL_REFIL = "UPDATE FuelRefill SET Volume = ";
         public const string SELECT_ALL_FUEL_REFILL = "SELECT * FROM FuelRefill";
-        public const string SELECT_CONSUMPTION_ALCOHOL = "SELECT Kml FROM FuelConsumption WHERE Fuel = 0 ORDER BY ID DESC LIMIT {0}";
-        public const string SELECT_CONSUMPTION_GASOLINE = "SELECT Kml FROM FuelConsumption WHERE Fuel = 1 ORDER BY ID DESC LIMIT {0}";
+        public const string SELECT_AVG_CONSUMPTION_ALCOHOL = "SELECT AVG(Kml) as alcohol_avg FROM FuelConsumption WHERE Fuel = 0 ORDER BY ID DESC LIMIT {0}";
+        public const string SELECT_AVG_CONSUMPTION_GASOLINE = "SELECT AVG(Kml) as gasoline_avg FROM FuelConsumption WHERE Fuel = 1 ORDER BY ID DESC LIMIT {0}";
         public const string SELECT_ALL_CONSUMPTION = "SELECT * FROM FuelConsumption ORDER BY ID DESC";
     }
 }
