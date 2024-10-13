@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Globalization;
 using System.Collections;
 
 public class Calculator : MonoBehaviour
@@ -38,8 +39,12 @@ public class Calculator : MonoBehaviour
             return;
         }
 
-        float gasoline = float.Parse(m_gasolinePrice.text);
-        float alcohol = float.Parse(m_alcoholPrice.text);
+        // float gasoline = float.Parse(m_gasolinePrice.text);
+        // float alcohol = float.Parse(m_alcoholPrice.text);
+        float.TryParse(m_gasolinePrice.text, NumberStyles.Float, new CultureInfo("en-US"), out float gasoline);
+        float.TryParse(m_alcoholPrice.text, NumberStyles.Float, new CultureInfo("en-US"), out float alcohol);
+
+        // Debug.Log("Parsed Gasoline price: " + gasoline + "\nParsed Alcohol price: " + alcohol);
 
         m_priceDiferencePercent = ((gasoline - alcohol) * 100f) / alcohol;
 

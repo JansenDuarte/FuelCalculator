@@ -41,8 +41,10 @@ public class FuelConsumption : MonoBehaviour
             return;
         }
 
-        float volume = float.Parse(m_fuelVolume.text);
-        float kilometer = (m_kilometer.text.Length == 0) ? 0f : float.Parse(m_kilometer.text);
+        // float volume = float.Parse(m_fuelVolume.text);
+        float.TryParse(m_fuelVolume.text, NumberStyles.Float, new CultureInfo("en-US"), out float volume);
+        // float kilometer = (m_kilometer.text.Length == 0) ? 0f : float.Parse(m_kilometer.text);
+        float.TryParse(m_kilometer.text, NumberStyles.Float, new CultureInfo("en-US"), out float kilometer);
 
         float KmPerL = 0f;
         if (volume > 0f)
@@ -71,7 +73,9 @@ public class FuelConsumption : MonoBehaviour
             return;
         }
 
-        float kml = float.Parse(m_knownConsumption.text);
+        // float kml = float.Parse(m_knownConsumption.text);
+        float.TryParse(m_knownConsumption.text, NumberStyles.Float, new CultureInfo("en-US"), out float kml);
+        Debug.Log("Parsed value:" + kml);
 
         DataBaseConnector.Instance.SaveFuelConsumption(kml, m_addFuelType.value);
     }
